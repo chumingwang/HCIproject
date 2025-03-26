@@ -1,0 +1,76 @@
+* {
+  display: none !important;
+}
+
+html,
+body,
+*:has(article),
+article,
+article * {
+  display: revert !important;
+}
+
+.my-sidebar article{
+  display: none !important;
+}
+
+[role='navigation'] {
+  display: none !important;
+}
+
+.reading-mode body * {
+  font-family: "Roboto" !important;
+}
+
+.reading-mode body, html {
+  background: #f5f2e9 !important;
+  font-family: "Helvetica Neue", Arial, sans-serif !important;
+  line-height: 1.8 !important;
+  letter-spacing: 0.05em !important;
+  scroll-behavior: smooth !important;
+}
+
+
+.reading-mode h1, h2, h3, h4, h5, h6,
+article, main, [role="main"],
+.post, .content, .entry-content {
+    display: block !important;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.reading-mode article {
+  font-family: "Roboto" !important;
+  margin: auto;
+  max-width: 800px !important;
+  margin: 2rem auto !important;
+  padding: 2rem !important;
+  background: #f5f2e9 !important;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1) !important;
+}
+
+.reading-mode p {
+  font-family: "Roboto" !important;
+  font-variant-ligatures: none !important;
+}
+
+span.bionic-word {
+  font-family: "Roboto" !important;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+span.bionic-letter {
+  color: #2d3436 !important;
+  font-weight: 700 !important;
+  position: relative;
+}
+
+span.bionic-letter::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+}

@@ -1,0 +1,35 @@
+{
+  "name": "Adaptive Reading Interface",
+  "description": "For HCI Project",
+  "version": "0.1",
+  "manifest_version": 3,
+  "icons": {
+    "16": "images/icon.png",
+    "32": "images/icon.png",
+    "48": "images/icon.png",
+    "128": "images/icon.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon.png",
+      "32": "images/icon.png",
+      "48": "images/icon.png",
+      "128": "images/icon.png"
+    }
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "web_accessible_resources": [{
+    "resources": [
+      "reading-mode.css",
+      "basic-mode.css"
+    ],
+    "matches": ["<all_urls>"]
+  }]
+}
