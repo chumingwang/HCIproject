@@ -1,3 +1,36 @@
+
+async function main(text) {
+  console.log('ai test');
+  try {
+    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer sk-885a293ac0564a808d6212feaa595da2`
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",  // 官方最新模型标识
+        messages: [{
+          role: "user",
+          content: `Please summarize this paragraph (no more than 100 words) and extract 3 keywords in the following format:
+          Abstract: [Content]
+          Keywords: [Word 1, Word 2, Word 3]
+          the paragraph is: ${text}` 
+        }],
+        temperature: 0.7,
+        stream: false  // 如需流式响应可设为true
+      })
+    });
+
+    const data = await response.json();
+    const sidebarContent = document.getElementById('sidebar-content');
+    sidebarContent.innerHTML = `<p>${data.choices[0].message.content}</p>`;
+    console.log(sidebarContent);
+  } catch (error) {
+    console.log(`错误：${error.message}`);
+  }
+}
+
 let basicStyleLink = null;
 let styleLink = null;
 let isReadingMode = false;
@@ -37,6 +70,7 @@ function toggleReadingMode(enable) {
     if (!article) {
       alert('This page has no article element. No need to use this extension');
       console.log('This page has no article element');
+      // main();
     } else {
       if (!styleLink) {
         styleLink = document.createElement('link');
@@ -194,8 +228,8 @@ function createSidebar() {
 
 function updateSidebarContent(text) {
   const sidebarContent = document.getElementById('sidebar-content');
-  sidebarContent.innerHTML = `<h1>Paragraph Content:</h1><p>${text}</p>`;
-  console.log(sidebarContent);
+  sidebarContent.innerHTML = `<h1>Summarizing...</h1>`;
+  // console.log(sidebarContent);
 }
 
 function addHoverEffect() {
@@ -204,6 +238,7 @@ function addHoverEffect() {
     paragraph.addEventListener('mouseenter', (event) => {
       const text = event.target.innerText;
       updateSidebarContent(text);
+      main(text);
     });
   });
 }
