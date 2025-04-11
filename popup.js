@@ -33,6 +33,7 @@ toggleBtn.addEventListener('click', async () => {
   });
 
   updateButtonState(newState);
+  window.close();
 });
 
 function updateButtonState(isActive) {

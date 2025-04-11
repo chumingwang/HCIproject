@@ -58,11 +58,12 @@ span.bionic-word {
   font-family: "Roboto" !important;
   display: inline-block;
   white-space: nowrap;
+  color: hsl(0, 0%, var(--lightness));
 }
 
 span.bionic-letter {
-  color: #2d3436 !important;
-  font-weight: 700 !important;
+  color: inherit; 
+  font-weight: bold !important;
   position: relative;
 }
 
@@ -73,4 +74,10 @@ span.bionic-letter::after {
   bottom: -2px;
   width: 100%;
   height: 2px;
+}
+
+.bionic-fade {
+  color: hsl(0, 0%, var(--lightness));
+  display: inline-block;
+  white-space: nowrap;
 }

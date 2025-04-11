@@ -9,7 +9,7 @@ async function main(text) {
         "Authorization": `Bearer sk-885a293ac0564a808d6212feaa595da2`
       },
       body: JSON.stringify({
-        model: "deepseek-chat",  // 官方最新模型标识
+        model: "deepseek-chat",
         messages: [{
           role: "user",
           content: `Please summarize this paragraph (no more than 100 words) and extract 3 keywords in the following format:
@@ -18,7 +18,7 @@ async function main(text) {
           the paragraph is: ${text}` 
         }],
         temperature: 0.7,
-        stream: false  // 如需流式响应可设为true
+        stream: false 
       })
     });
 
@@ -27,7 +27,7 @@ async function main(text) {
     sidebarContent.innerHTML = `<p>${data.choices[0].message.content}</p>`;
     console.log(sidebarContent);
   } catch (error) {
-    console.log(`错误：${error.message}`);
+    console.log(`error: ${error.message}`);
   }
 }
 
@@ -39,6 +39,10 @@ let scrollCount = 0;
 let timeoutId = null;
 let isListening = false;
 let onSidebar = false;
+
+let isProcessElement = false;
+
+
 
 const transitionStyle = document.createElement('style');
 transitionStyle.textContent = `
@@ -53,8 +57,6 @@ transitionStyle.textContent = `
     transition: all 0.5s ease;
   }
 `;
-
-document.head.insertBefore(transitionStyle, document.head.firstChild);
 
 
 chrome.runtime.onMessage.addListener((msg) => {
@@ -81,6 +83,10 @@ function toggleReadingMode(enable) {
         
         document.body.classList.add('reading-mode');
       }
+      if (!isProcessElement) {
+        document.querySelectorAll('p').forEach(processElement);
+        isProcessElement = true;
+      }
       createSidebar();
       addHoverEffect();
       applyBasicMode();
@@ -103,12 +109,16 @@ const handleScroll = (e) => {
 
 function resetCounter() {
   if (isListening) {
-    if (scrollCount >= 5) {
-      applyBasicMode();
+    if (scrollCount >= 5) { // This is the number of scrolls required to trigger the swap!!!!!!!!!
+      if (isReadingMode)
+        applyBasicMode();
       //removeReadingMode();
     } else {
-      if (!onSidebar)
-        applyReadingMode();
+      if (!isReadingMode){
+        if (!onSidebar)
+          applyReadingMode();
+      }
+      
     }
   }
   scrollCount = 0;
@@ -145,6 +155,7 @@ function applyBasicMode() {
       styleLink.disabled = true;
     }, 300);
   }
+  isReadingMode = false;
 }
 
 function applyReadingMode() {
@@ -156,41 +167,61 @@ function applyReadingMode() {
     document.head.appendChild(styleLink);
     document.body.classList.add('reading-mode');
 
-    document.querySelectorAll('p, li, dd').forEach(processElement);
+    // document.querySelectorAll('p, li, dd').forEach(processElement);
   }
   else {
     styleLink.disabled = false;
-    document.querySelectorAll('p, li, dd').forEach(processElement);
+    // document.querySelectorAll('p, li, dd').forEach(processElement);
     setTimeout(() => {
       basicStyleLink.disabled = true;
     }, 300);
   }
+  isReadingMode = true;
 }
 
 function processElement(element) {
-  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+  const textNodes = [];
+  const walker = document.createTreeWalker(
+    element,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
 
   let node;
   while ((node = walker.nextNode())) {
     if (node.nodeValue.trim()) {
-      const words = node.nodeValue.split(/(\s+)/);
-      const newHTML = words
-        .map(word => {
-          if (word.match(/^\s*$/)) return word;
-          const firstLetter = word.match(/^[a-zA-Z0-9]/)?.[0] || '';
-          const rest = word.slice(firstLetter.length);
-          return `<span class="bionic-word"><span class="bionic-letter">${firstLetter}</span>${rest}</span>`;
-        })
-        .join('');
-
-      const span = document.createElement("span");
-      span.innerHTML = newHTML;
-
-      node.parentNode.replaceChild(span, node);
+      textNodes.push(node);
     }
   }
-}
 
+  let totalWords = 0;
+  textNodes.forEach(node => {
+    totalWords += node.nodeValue.split(/\s+/).filter(w => w).length;
+  });
+
+  let globalIndex = 0;
+
+  textNodes.forEach(node => {
+    const words = node.nodeValue.split(/(\s+)/);
+    const newHTML = words
+      .map(word => {
+        if (word.match(/^\s*$/)) return word;
+        const lightness = totalWords > 1 
+          ? 30 + (35 * globalIndex / (totalWords - 1))
+          : 30;
+        globalIndex++;
+        const firstLetter = word[0];
+        const rest = word.slice(firstLetter.length);
+        return `<span class="bionic-word" style="--lightness: ${lightness}%"><span class="bionic-letter">${firstLetter}</span>${rest}</span>`;
+      })
+      .join('');
+
+    const span = document.createElement("span");
+    span.innerHTML = newHTML;
+    node.parentNode.replaceChild(span, node);
+  });
+}
 
 function removeReadingMode() {
   styleLink.remove();
@@ -202,7 +233,7 @@ function removeReadingMode() {
 
   const sidebar = document.getElementById('my-sidebar');
   if (sidebar) {
-    sidebar.remove(); // 删除侧边栏
+    sidebar.remove();
   }
   
 }
