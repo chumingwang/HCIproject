@@ -6,7 +6,7 @@ async function main(text) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer sk-885a293ac0564a808d6212feaa595da2`
+        "Authorization": ``
       },
       body: JSON.stringify({
         model: "deepseek-chat",
